@@ -11,12 +11,16 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
+
+import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
     ListView lv1;
+    TextView tv;
     ArrayList<Rest> data = new ArrayList<>();
     ArrayAdapter<String> adapter;
     ArrayList<String> dataName = new ArrayList<>();
@@ -32,6 +36,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void setListView() {
         lv1 = (ListView)findViewById(R.id.listview);
+        tv = (TextView)findViewById(R.id.tv);
 
         adapter = new ArrayAdapter<>(this,
                 android.R.layout.simple_list_item_1, dataName);
@@ -63,6 +68,7 @@ public class MainActivity extends AppCompatActivity {
                                 data.remove(pos);
                                 dataName.remove(pos);
                                 adapter.notifyDataSetChanged();
+                                tv.setText("맛집 리스트(" + data.size() + "개)");
                             }
                         })
                         .show();
@@ -84,6 +90,7 @@ public class MainActivity extends AppCompatActivity {
                 this.data.add(addNode);
                 dataName.add(addNode.getName());
                 adapter.notifyDataSetChanged();
+                tv.setText("맛집 리스트(" + this.data.size() + "개)");
             }
         }
         super.onActivityResult(requestCode, resultCode, data);
