@@ -6,9 +6,13 @@ import android.content.Intent;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -20,10 +24,12 @@ import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
     ListView lv1;
-    TextView tv;
+    EditText e1;
+    Button b4;
+    CheckBox c1;
     ArrayList<Rest> data = new ArrayList<>();
-    ArrayAdapter<String> adapter;
-    ArrayList<String> dataName = new ArrayList<>();
+    RestAdapter adapter;
+    boolean isDel = false;
     final int _CHOOSE_MENU_CODE = 1;
 
     @Override
@@ -36,10 +42,11 @@ public class MainActivity extends AppCompatActivity {
 
     public void setListView() {
         lv1 = (ListView)findViewById(R.id.listview);
-        tv = (TextView)findViewById(R.id.tv);
+        e1 = (EditText)findViewById(R.id.e1);
+        b4 = (Button)findViewById(R.id.b4);
+        c1 = (CheckBox)findViewById(R.id.c1);
 
-        adapter = new ArrayAdapter<>(this,
-                android.R.layout.simple_list_item_1, dataName);
+        adapter = new RestAdapter(this, data, false);
 
         lv1.setAdapter(adapter);
 
@@ -52,34 +59,65 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        lv1.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+        e1.addTextChangedListener(new TextWatcher() {
             @Override
-            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
-                AlertDialog.Builder dlg = new AlertDialog.Builder(MainActivity.this);
-                final int pos = position;
-                dlg.setTitle("삭제확인")
-                        .setMessage("선택한 맛집을 정말 삭제할거예요?")
-                        .setIcon(R.drawable.potato)
-                        .setPositiveButton("닫기", null)
-                        .setNegativeButton("확인", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                data.remove(pos);
-                                dataName.remove(pos);
-                                adapter.notifyDataSetChanged();
-                                tv.setText("맛집 리스트(" + data.size() + "개)");
-                            }
-                        })
-                        .show();
-                return true;
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                String search = e1.getText().toString();
+                if (search.length() > 0) {
+                    lv1.setFilterText(search);
+                } else {
+                    lv1.clearTextFilter();
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
             }
         });
     }
 
     public void onClick(View v) {
-        Intent intent = new Intent(this, Main2Activity.class);
-        startActivityForResult(intent, _CHOOSE_MENU_CODE);
+        if (v.getId() == R.id.b1) {
+            Intent intent = new Intent(this, Main2Activity.class);
+            startActivityForResult(intent, _CHOOSE_MENU_CODE);
+        } else if (v.getId() == R.id.b2) {
+            adapter.setNameAscSort();
+        } else if (v.getId() == R.id.b3) {
+            adapter.setTypeAscSort();
+        } else {
+            if (isDel) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                builder.setTitle("삭제확인")
+                        .setMessage("선택한 맛집을 정말 삭제할거에요?")
+                        .setNegativeButton("취소",null)
+                        .setPositiveButton("삭제", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                for (int i = data.size() - 1; i >= 0; i--) {
+                                    if (data.get(i).getIsCheck() == 1)
+                                        data.remove(i);
+                                }
+                                adapter.notifyDataSetChanged();
+                                lv1.setAdapter(adapter);
+                                isDel = false;
+                                b4.setText("선택");
+                                adapter.setDel(false);
+                                adapter.notifyDataSetChanged();
+                            }
+                        }).show();
+            } else {
+                isDel = true;
+                b4.setText("삭제");
+                adapter.setDel(true);
+                adapter.notifyDataSetChanged();
+            }
+        }
     }
 
     @Override
@@ -88,9 +126,7 @@ public class MainActivity extends AppCompatActivity {
             if (resultCode == RESULT_OK) {
                 Rest addNode = data.getParcelableExtra("addRest");
                 this.data.add(addNode);
-                dataName.add(addNode.getName());
                 adapter.notifyDataSetChanged();
-                tv.setText("맛집 리스트(" + this.data.size() + "개)");
             }
         }
         super.onActivityResult(requestCode, resultCode, data);

@@ -14,6 +14,7 @@ public class Rest implements Parcelable {
     private String[] menu = new String[3];
     private String url = "";
     private String date = "";
+    private int isCheck = 0;
     private int num = -1;
 
     public Rest(String name, String callNum, String menu[], String url, String date, int num) {
@@ -32,6 +33,7 @@ public class Rest implements Parcelable {
         url = in.readString();
         date = in.readString();
         num = in.readInt();
+        isCheck = in.readInt();
     }
 
     public static final Creator<Rest> CREATOR = new Creator<Rest>() {
@@ -59,7 +61,10 @@ public class Rest implements Parcelable {
         dest.writeString(url);
         dest.writeString(date);
         dest.writeInt(num);
+        dest.writeInt(isCheck);
     }
+
+    public void setIsCheck(int isCheck) { this.isCheck = isCheck; }
 
     public String getName() {
         return name;
@@ -84,4 +89,6 @@ public class Rest implements Parcelable {
     public int getNum() {
         return num;
     }
+
+    public int getIsCheck() { return isCheck; }
 }
