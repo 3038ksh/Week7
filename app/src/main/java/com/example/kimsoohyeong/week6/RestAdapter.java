@@ -21,7 +21,7 @@ import java.util.Comparator;
  */
 
 public class RestAdapter extends BaseAdapter {
-    ArrayList<Rest> data = new ArrayList<>();
+    ArrayList<Rest> data;
     Context context;
     boolean isDel = false;
 
@@ -32,9 +32,7 @@ public class RestAdapter extends BaseAdapter {
     }
 
     @Override
-    public int getCount() {
-        return data.size();
-    }
+    public int getCount() { return data.size(); }
 
     @Override
     public Object getItem(int position) {
